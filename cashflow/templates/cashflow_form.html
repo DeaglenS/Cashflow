@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h3>{{ title }}</h3>
+
+<form method="post" class="row g-3">{% csrf_token %}
+  <div class="col-md-3">{{ form.record_date.label_tag }}{{ form.record_date }}</div>
+  <div class="col-md-3">{{ form.status.label_tag }}{{ form.status }}</div>
+  <div class="col-md-3">{{ form.movement_type.label_tag }}{{ form.movement_type }}</div>
+  <div class="col-md-3">{{ form.category.label_tag }}{{ form.category }}</div>
+  <div class="col-md-3">{{ form.subcategory.label_tag }}{{ form.subcategory }}</div>
+  <div class="col-md-3">{{ form.amount.label_tag }}{{ form.amount }}</div>
+  <div class="col-12">{{ form.comment.label_tag }}{{ form.comment }}</div>
+  <div class="col-12">
+    <button class="btn btn-primary">Сохранить</button>
+    <a class="btn btn-secondary" href="/">Отмена</a>
+  </div>
+</form>
+
+<script>
+const categorySelect = document.getElementById('id_category');
+const subcategorySelect = document.getElementById('id_subcategory');
+
+async function refreshSubcategories(categoryId) {
+  subcategorySelect.innerHTML = '<option value="">— выберите —</option>';
+  if (!categoryId) return;
+  const res = await fetch(`/ajax/subcategories/?category_id=${categoryId}`);
+  const data = await res.json();
+  for (const item of data.results) {
+    const opt = document.createElement('option');
+    opt.value = item.id; opt.textContent = item.name;
+    subcategorySelect.appendChild(opt);
+  }
+}
+if (categorySelect) {
+  categorySelect.addEventListener('change', e => refreshSubcategories(e.target.value));
+}
+</script>
+{% endblock %}

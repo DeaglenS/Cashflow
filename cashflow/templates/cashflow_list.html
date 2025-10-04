@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}ДДС — список{% endblock %}
+{% block content %}
+<h3>Записи ДДС</h3>
+
+<form class="row g-2 mb-3" method="get">
+  <div class="col-sm-3">
+    <label class="form-label">Дата с</label>
+    <input type="date" name="date_from" class="form-control" value="{{ params.date_from }}" />
+  </div>
+  <div class="col-sm-3">
+    <label class="form-label">Дата по</label>
+    <input type="date" name="date_to" class="form-control" value="{{ params.date_to }}" />
+  </div>
+  <div class="col-sm-2">
+    <label class="form-label">Статус</label>
+    <select class="form-select" name="status" id="filter-status"></select>
+  </div>
+  <div class="col-sm-2">
+    <label class="form-label">Тип</label>
+    <select class="form-select" name="movement_type" id="filter-type"></select>
+  </div>
+  <div class="col-sm-2">
+    <label class="form-label">Категория</label>
+    <select class="form-select" name="category" id="filter-category"></select>
+  </div>
+  <div class="col-sm-2">
+    <label class="form-label">Подкатегория</label>
+    <select class="form-select" name="subcategory" id="filter-subcategory"></select>
+  </div>
+  <div class="col-sm-2 align-self-end">
+    <button class="btn btn-primary w-100">Фильтровать</button>
+  </div>
+  <div class="col-sm-2 align-self-end">
+    <a class="btn btn-outline-secondary w-100" href="/">Сброс</a>
+  </div>
+</form>
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover align-middle">
+    <thead>
+      <tr>
+        <th>Дата</th>
+        <th>Статус</th>
+        <th>Тип</th>
+        <th>Категория</th>
+        <th>Подкатегория</th>
+        <th class="text-end">Сумма</th>
+        <th>Комментарий</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for obj in page_obj.object_list %}
+        <tr>
+          <td>{{ obj.record_date }}</td>
+          <td>{{ obj.status.name }}</td>
+          <td>{{ obj.movement_type.name }}</td>
+          <td>{{ obj.category.name }}</td>
+          <td>{{ obj.subcategory.name }}</td>
+          <td class="text-end">{{ obj.amount }}</td>
+          <td>{{ obj.comment|default:"" }}</td>
+          <td class="text-nowrap">
+            <a class="btn btn-sm btn-outline-primary" href="/cashflows/{{ obj.id }}/edit/">Изм.</a>
+            <form method="post" action="/cashflows/{{ obj.id }}/delete/" style="display:inline">{% csrf_token %}
+              <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить запись?')">Удал.</button>
+            </form>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="8" class="text-center text-muted">Нет данных</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<nav>
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ params.urlencode }}">Назад</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">Стр. {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ params.urlencode }}">Вперёд</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+<script>
+window.addEventListener('DOMContentLoaded', async () => {
+  const params = new URLSearchParams(window.location.search);
+  await fillSelect('/api/statuses/', document.getElementById('filter-status'), params.get('status'));
+  await fillSelect('/api/movement-types/', document.getElementById('filter-type'), params.get('movement_type'));
+  await fillSelect('/api/categories/', document.getElementById('filter-category'), params.get('category'));
+  const cat = params.get('category');
+  const subSelect = document.getElementById('filter-subcategory');
+  if (cat) await fillSelect(`/api/subcategories/?category=${cat}`, subSelect, params.get('subcategory'));
+  else await fillSelect('/api/subcategories/', subSelect, params.get('subcategory'));
+});
+</script>
+{% endblock %}

@@ -1,0 +1,16 @@
+[
+  {"model": "cashflow.movementtype", "pk": 1, "fields": {"name": "Пополнение"}},
+  {"model": "cashflow.movementtype", "pk": 2, "fields": {"name": "Списание"}},
+
+  {"model": "cashflow.status", "pk": 1, "fields": {"name": "Бизнес"}},
+  {"model": "cashflow.status", "pk": 2, "fields": {"name": "Личное"}},
+  {"model": "cashflow.status", "pk": 3, "fields": {"name": "Налог"}},
+
+  {"model": "cashflow.category", "pk": 1, "fields": {"name": "Инфраструктура", "movement_type": 2}},
+  {"model": "cashflow.category", "pk": 2, "fields": {"name": "Маркетинг", "movement_type": 2}},
+
+  {"model": "cashflow.subcategory", "pk": 1, "fields": {"name": "VPS", "category": 1}},
+  {"model": "cashflow.subcategory", "pk": 2, "fields": {"name": "Proxy", "category": 1}},
+  {"model": "cashflow.subcategory", "pk": 3, "fields": {"name": "Farpost", "category": 2}},
+  {"model": "cashflow.subcategory", "pk": 4, "fields": {"name": "Avito", "category": 2}}
+]
